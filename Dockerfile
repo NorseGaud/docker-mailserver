@@ -54,12 +54,13 @@ RUN \
   postfix-policyd-spf-python postsrsd pyzor \
   razor rpm2cpio rsyslog sasl2-bin spamassassin supervisor \
   unrar-free unzip whois xz-utils >/dev/null && \
-  # cleanup
+  # Install latest 2.3 dovecot
   curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
   gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
   echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/buster buster main" > /etc/apt/sources.list.d/dovecot.list && \
   apt-get -qq update && \
   apt-get upgrade -y && \
+  # cleanup
   apt-get -qq autoclean && \
   apt-get -qq clean && \
   rm -rf /var/lib/apt/lists/* && \
