@@ -28,8 +28,12 @@ fi
 HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 
 # Protect config file with lock to avoid race conditions
-(
-  flock -e 200
+LOCK_FILE="/tmp/docker-mailserver/delmailuser.lock"
+function rmlock() { rm -f $LOCK_FILE || true }
+touch "${DATABASE}"
+if [[ ! -e $LOCK_FILE ]]; then
+  trap rmlock EXIT
+  touch $LOCK_FILE
   grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null || errex "User \"${USER}\" does not exist"
   sed -i "s ^""${USER}""|.* ""${USER}""|""${HASH}"" " "${DATABASE}"
-) 200< "${DATABASE}"
+fi

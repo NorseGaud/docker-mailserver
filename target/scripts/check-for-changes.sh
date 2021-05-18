@@ -61,8 +61,14 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
     # Lock configuration while working
-    (
-      flock -e 200
+
+    DATBASE="postfix-accounts.cf"
+    LOCK_FILE="check-for-chanes.lock"
+    function rmlock() { rm -f $LOCK_FILE || true }
+    touch "${DATABASE}"
+    if [[ ! -e $LOCK_FILE ]]; then
+      trap rmlock EXIT
+      touch $LOCK_FILE
 
       for FILE in ${CHANGED}
       do
@@ -226,7 +232,8 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
       # prevent restart of dovecot when smtp_only=1
       [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
-    ) 200<postfix-accounts.cf # end lock
+      
+    fi
 
     # mark changes as applied
     mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
