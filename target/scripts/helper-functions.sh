@@ -15,6 +15,19 @@ function escape
   echo "${1//./\\.}"
 }
 
+function create_lock
+{
+    LOCK_FILE="/tmp/docker-mailserver/$1.lock"
+    [[ -e "${LOCK_FILE}" ]] && errex "Lock file ${LOCK_FILE} exists. Another $1 execution is happening. Try again later."
+    trap remove_lock EXIT
+    touch "${LOCK_FILE}"
+}
+
+function remove_lock
+{
+  rm -f "${LOCK_FILE}"
+}
+
 # ? ––––––––––––––––––––––––––––––––––––––––––––– IP & CIDR
 
 function _mask_ip_digit
