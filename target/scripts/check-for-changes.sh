@@ -62,6 +62,7 @@ do
     # We should fix that and write to temporary files, stop, swap and start
     # Lock configuration while working
 
+<<<<<<< HEAD
     DATBASE="postfix-accounts.cf"
     LOCK_FILE="check-for-chanes.lock"
     function rmlock() { rm -f $LOCK_FILE || true }
@@ -69,6 +70,12 @@ do
     if [[ ! -e $LOCK_FILE ]]; then
       trap rmlock EXIT
       touch $LOCK_FILE
+=======
+    LOCK_FILE="check-for-changes.lock"
+    if [[ ! -e "${LOCK_FILE}" ]]; then
+      trap rmlock EXIT
+      touch "${LOCK_FILE}"
+>>>>>>> issues/1979
 
       for FILE in ${CHANGED}
       do
@@ -232,7 +239,6 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
       # prevent restart of dovecot when smtp_only=1
       [[ ${SMTP_ONLY} -ne 1 ]] && supervisorctl restart dovecot
-      
     fi
 
     # mark changes as applied

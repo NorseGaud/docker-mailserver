@@ -15,8 +15,8 @@ function escape
   echo "${1//./\\.}"
 }
 
-function rmlock() { 
-  rm -f $LOCK_FILE
+function rmlock() {
+  rm -f "${LOCK_FILE}"
 }
 
 # ? ––––––––––––––––––––––––––––––––––––––––––––– IP & CIDR

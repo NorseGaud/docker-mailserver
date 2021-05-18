@@ -87,9 +87,9 @@ then
 fi
 
 LOCK_FILE="/tmp/docker-mailserver/delmailuser.lock"
-if [[ ! -e $LOCK_FILE ]]; then
+if [[ ! -e "${LOCK_FILE}" ]]; then
   trap rmlock EXIT
-  touch $LOCK_FILE
+  touch "${LOCK_FILE}"
   for EMAIL in "${@}"
   do
     ERROR=false
