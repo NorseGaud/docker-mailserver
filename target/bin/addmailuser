@@ -44,7 +44,6 @@ PASSWD="${*}"
 
 # Protect config file with lock to avoid race conditions
 LOCK_FILE="/tmp/docker-mailserver/addmailuser.lock"
-function rmlock() { rm -f $LOCK_FILE || true }
 touch "${DATABASE}"
 if [[ ! -e $LOCK_FILE ]]; then
   trap rmlock EXIT

@@ -34,7 +34,6 @@ fi
 
 # Protect config file with lock to avoid race conditions
 LOCK_FILE="/tmp/docker-mailserver/setquota.lock"
-function rmlock() { rm -f $LOCK_FILE || true }
 touch "${DATABASE}"
 if [[ ! -e $LOCK_FILE ]]; then
   trap rmlock EXIT

@@ -29,7 +29,6 @@ HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
 
 # Protect config file with lock to avoid race conditions
 LOCK_FILE="/tmp/docker-mailserver/delmailuser.lock"
-function rmlock() { rm -f $LOCK_FILE || true }
 touch "${DATABASE}"
 if [[ ! -e $LOCK_FILE ]]; then
   trap rmlock EXIT
