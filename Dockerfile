@@ -79,6 +79,8 @@ RUN \
   curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
   gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
   echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/buster buster main" > /etc/apt/sources.list.d/dovecot.list && \
+  apt-get -qq update && \
+  apt-get upgrade -y && \
   apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
   # cleanup
   apt-get -qq autoremove &>/dev/null && \
