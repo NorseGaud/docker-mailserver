@@ -86,7 +86,7 @@ then
   fi
 fi
 
-createLock "$(basename "$0")"
+create_lock "$(basename "$0")"
 for EMAIL in "${@}"
 do
   ERROR=false

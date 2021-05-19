@@ -61,7 +61,7 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
     # Lock configuration while working
-    createLock "$(basename "$0")"
+    create_lock "$(basename "$0")"
 
     for FILE in ${CHANGED}
     do
