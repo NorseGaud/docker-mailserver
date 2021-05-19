@@ -15,7 +15,21 @@ function escape
   echo "${1//./\\.}"
 }
 
-function rmlock() {
+
+function createLock
+{
+	LOCK_FILE="/tmp/docker-mailserver/$1.lock"
+  while [[ ! -e "${LOCK_FILE}" ]]
+  do
+    echo "Lock file ${LOCK_FILE} already exists... Waiting for it to be removed before proceeding..."
+    sleep 5
+  done
+  trap rmlock EXIT
+  touch $LOCK_FILE
+}
+
+function removeLock
+{
   rm -f "${LOCK_FILE}"
 }
 
