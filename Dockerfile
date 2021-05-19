@@ -235,6 +235,9 @@ RUN \
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 COPY target/shared/ffdhe4096.pem /etc/postfix/shared/ffdhe4096.pem
+# Support for 2.3 dovecot
+COPY target/shared/ffdhe4096.pem /etc/dovecot/dh.pem
+
 COPY \
   target/postfix/header_checks.pcre \
   target/postfix/sender_header_filter.pcre \
