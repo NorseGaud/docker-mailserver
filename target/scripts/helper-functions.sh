@@ -17,16 +17,16 @@ function escape
 
 function create_lock
 {
-	LOCK_FILE="/tmp/docker-mailserver/$1.lock"
-	RETRIES=0
-	while [[ -e "${LOCK_FILE}" ]]
-	do
-		[ "${RETRIES}" -ge 15 ] && echo "Too many attempts to lock ${LOCK_FILE}..." && exit 100
-		sleep 5
-		((RETRIES+=1))
-	done
-	trap remove_lock EXIT
-	touch "${LOCK_FILE}"
+    LOCK_FILE="/tmp/docker-mailserver/$1.lock"
+    RETRIES=0
+    while [[ -e "${LOCK_FILE}" ]]
+    do
+      [ "${RETRIES}" -ge 15 ] && echo "Too many attempts to lock ${LOCK_FILE}..." && exit 100
+      sleep 5
+      ((RETRIES+=1))
+    done
+    trap remove_lock EXIT
+    touch "${LOCK_FILE}"
 }
 
 function remove_lock
