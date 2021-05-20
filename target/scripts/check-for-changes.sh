@@ -6,6 +6,8 @@
 LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 _notify 'task' "${LOG_DATE} Start check-for-changes script."
 
+SCRIPT_NAME="$(basename "$0")"
+
 # ? ––––––––––––––––––––––––––––––––––––––––––––– Checks
 
 cd /tmp/docker-mailserver || exit 1
@@ -44,9 +46,10 @@ do
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
   # get chksum and check it, no need to lock config yet
+  create_lock ${SCRIPT_NAME}
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
-
-  if ! cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
+  cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
+  if [ $? -eq 1 ]
   then
     _notify 'inf' "${LOG_DATE} Change detected"
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
@@ -61,7 +64,6 @@ do
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
     # Lock configuration while working
-    create_lock "$(basename "$0")"
 
     for FILE in ${CHANGED}
     do
@@ -229,6 +231,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+  remove_lock ${SCRIPT_NAME}
 
   sleep 1
 done
