@@ -17,15 +17,17 @@ function escape
 
 function create_lock
 {
-    LOCK_FILE="/tmp/docker-mailserver/$1.lock"
+    SCRIPT_NAME="$1"
+    LOCK_FILE="/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
     [[ -e "${LOCK_FILE}" ]] && errex "Lock file ${LOCK_FILE} exists. Another $1 execution is happening. Try again later."
-    trap remove_lock EXIT
+    trap remove_lock EXIT # This won't work if the script is, for example, check-for-changes.sh which uses a while loop to stay running; you'll need to include a remove_lock call at the end of your logic
     touch "${LOCK_FILE}"
 }
 
 function remove_lock
 {
-  rm -f "${LOCK_FILE}"
+  SCRIPT_NAME=${SCRIPT_NAME:-$1}
+  rm -f "/tmp/docker-mailserver/${SCRIPT_NAME}.lock"
 }
 
 # ? ––––––––––––––––––––––––––––––––––––––––––––– IP & CIDR
