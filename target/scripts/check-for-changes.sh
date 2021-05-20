@@ -50,8 +50,9 @@ do
 
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
-
-  if ! cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
+  
+  cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
+  if [ $? -eq 1 ]
   then
     _notify 'inf' "${LOG_DATE} Change detected"
     CHANGED=$(grep -Fxvf "${CHKSUM_FILE}" "${CHKSUM_FILE}.new" | sed 's/^[^ ]\+  //')
