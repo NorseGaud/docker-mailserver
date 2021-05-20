@@ -46,11 +46,11 @@ do
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
   # Lock configuration while working
-  create_lock "$(basename "$0")"
+  create_lock "$SCRIPT_NAME"
 
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
-  
+
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
   if [ $? -eq 1 ]
   then
@@ -233,7 +233,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
-  remove_lock ${SCRIPT_NAME}
+  remove_lock "${SCRIPT_NAME}"
 
   sleep 1
 done
