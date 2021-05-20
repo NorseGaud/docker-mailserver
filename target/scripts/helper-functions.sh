@@ -18,13 +18,7 @@ function escape
 function create_lock
 {
     LOCK_FILE="/tmp/docker-mailserver/$1.lock"
-    RETRIES=0
-    while [[ -e "${LOCK_FILE}" ]]
-    do
-      [ "${RETRIES}" -ge 15 ] && echo "Too many attempts to lock ${LOCK_FILE}..." && exit 100
-      sleep 5
-      ((RETRIES+=1))
-    done
+    [[ -e "${LOCK_FILE}" ]] && errex "Lock file ${LOCK_FILE} exists. Another $1 execution is happening. Try again later."
     trap remove_lock EXIT
     touch "${LOCK_FILE}"
 }
