@@ -46,7 +46,7 @@ do
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
   # Lock configuration while working
-  create_lock "$SCRIPT_NAME"
+  create_lock "${SCRIPT_NAME}"
 
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
