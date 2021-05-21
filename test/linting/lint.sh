@@ -6,6 +6,15 @@
 
 SCRIPT="lint.sh"
 
+# macOS doesn't support readlink -f, so work around it
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  function readlink() {
+    [[ "$1" == "-f" ]] && shift
+    DIR="${1%/*}"
+    (cd "$DIR" && echo "$(pwd -P)")
+  }
+fi
+
 function _get_current_directory
 {
   if dirname "$(readlink -f "${0}")" &>/dev/null
@@ -103,7 +112,7 @@ function _hadolint
     "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*")"
 
   if git ls-files --exclude='Dockerfile*' --ignored | \
-    xargs --max-lines=1 "${LINT[@]}"
+    xargs -L 1 "${LINT[@]}"
   then
     __log_success
   else
