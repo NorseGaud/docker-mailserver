@@ -13,22 +13,21 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
     DIR="${1%/*}"
     (cd "$DIR" && echo "$(pwd -P)")
   }
+  function realpath() {
+    local OURCDIR=$CDIR
+    cd "$(dirname "$1")"
+    local LINK=$(readlink "$(basename "$1")")
+    while [ "$LINK" ]; do
+      cd "$(dirname "$LINK")"
+      local LINK=$(readlink "$(basename "$1")")
+    done
+    local REALPATH="$CDIR/$(basename "$1")"
+    cd "$OURCDIR"
+    echo "$REALPATH"
+  }
 fi
 
-function _get_current_directory
-{
-  if dirname "$(readlink -f "${0}")" &>/dev/null
-  then
-    CDIR="$(dirname "$(readlink -f "${0}")")"
-  elif realpath -e -L "${0}" &>/dev/null
-  then
-    CDIR="$(realpath -e -L "${0}")"
-    CDIR="${CDIR%/setup.sh}"
-  fi
-}
-
-CDIR="$(pwd)"
-_get_current_directory
+CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # ? ––––––––––––––––––––––––––––––––––––––––––––– ERRORS
 
@@ -109,7 +108,7 @@ function _hadolint
   fi
 
   __log_info 'linter version:' \
-    "$(${LINT[0]} --version | grep -E -o "v[0-9\.]*")"
+    "$(${LINT[0]} --version | grep -E -o "[0-9\.].*")"
 
   if git ls-files --exclude='Dockerfile*' --ignored | \
     xargs -L 1 "${LINT[@]}"
@@ -134,13 +133,24 @@ function _shellcheck
   fi
 
   __log_info 'linter version:' \
-    "$(${LINT[0]} --version | grep -m 2 -o "[0-9.]*")"
+    "$(${LINT[0]} --version | grep -m 1 -o "[0-9.].*")"
 
   # an overengineered solution to allow shellcheck -x to
   # properly follow `source=<SOURCE FILE>` when sourcing
   # files with `. <FILE>` in shell scripts.
+
+  find . -type f -iname "*.sh" \
+    -not -path "./test/bats/*" \
+    -not -path "./test/test_helper/*" \
+    -not -path "./target/docker-configomat/*"
+
   while read -r FILE
   do
+    readlink -f "${FILE}"
+    dirname "$(readlink -f "${FILE}")"
+    realpath "$(dirname "$(readlink -f "${FILE}")")"
+    echo "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
+
     if ! (
       cd "$(realpath "$(dirname "$(readlink -f "${FILE}")")")"
       if ! "${LINT[@]}" "$(basename -- "${FILE}")"

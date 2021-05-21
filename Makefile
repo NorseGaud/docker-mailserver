@@ -7,7 +7,7 @@ KERNEL_NAME=$(shell uname -s)
 KERNEL_NAME_LOWERCASE=$(shell echo $(KERNEL_NAME) | tr '[:upper:]' '[:lower:]')
 MACHINE_ARCH=$(shell uname -m)
 
-HADOLINT_VERSION   = 1.19.0
+HADOLINT_VERSION   = 2.4.1
 SHELLCHECK_VERSION = 0.7.1
 ECLINT_VERSION     = 2.3.1
 
