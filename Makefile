@@ -3,6 +3,9 @@ SHELL = /bin/bash
 NAME   ?= mailserver-testing:ci
 VCS_REF = $(shell git rev-parse --short HEAD)
 VCS_VER = $(shell git describe --tags --contains --always)
+KERNEL_NAME=$(shell uname -s)
+KERNEL_NAME_LOWERCASE=$(shell echo $(KERNEL_NAME) | tr '[:upper:]' '[:lower:]')
+MACHINE_ARCH=$(shell uname -m)
 
 HADOLINT_VERSION   = 1.19.0
 SHELLCHECK_VERSION = 0.7.1
@@ -64,9 +67,9 @@ eclint:
 install_linters:
 	@ mkdir -p tools
 	@ curl -S -L \
-		"https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$(shell uname -s)-$(shell uname -m)" -o tools/hadolint
+		"https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$(KERNEL_NAME)-$(MACHINE_ARCH)" -o tools/hadolint
 	@ curl -S -L \
-		"https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).linux.x86_64.tar.xz" | tar -JxO shellcheck-v$(SHELLCHECK_VERSION)/shellcheck > tools/shellcheck
+		"https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).$(KERNEL_NAME_LOWERCASE).$(MACHINE_ARCH).tar.xz" | tar -JxO shellcheck-v$(SHELLCHECK_VERSION)/shellcheck > tools/shellcheck
 	@ curl -S -L \
-		"https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$(ECLINT_VERSION)/ec-linux-amd64.tar.gz" | tar -zxO bin/ec-linux-amd64 > tools/eclint
+		"https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$(ECLINT_VERSION)/ec-$(KERNEL_NAME_LOWERCASE)-amd64.tar.gz" | tar -zxO bin/ec-$(KERNEL_NAME_LOWERCASE)-amd64 > tools/eclint
 	@ chmod u+rx tools/*
