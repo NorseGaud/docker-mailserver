@@ -45,6 +45,9 @@ while true
 do
   LOG_DATE=$(date +"%Y-%m-%d %H:%M:%S ")
 
+  # Lock configuration while working
+  create_lock "${SCRIPT_NAME}"
+
   # get chksum and check it, no need to lock config yet
   create_lock ${SCRIPT_NAME}
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
@@ -63,7 +66,6 @@ do
     # TODO Perform updates below conditionally too --------
     # Also note that changes are performed in place and are not atomic
     # We should fix that and write to temporary files, stop, swap and start
-    # Lock configuration while working
 
     for FILE in ${CHANGED}
     do
@@ -231,7 +233,7 @@ s/$/ regexp:\/etc\/postfix\/regexp/
 
   # mark changes as applied
   mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
-  remove_lock ${SCRIPT_NAME}
+  remove_lock "${SCRIPT_NAME}"
 
   sleep 1
 done
