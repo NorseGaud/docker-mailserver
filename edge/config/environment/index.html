@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/">
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.4">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.5">
     
     
       
@@ -84,7 +84,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.svg" alt="logo">
+  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -326,7 +326,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.svg" alt="logo">
+  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -634,6 +634,20 @@
           <li class="md-nav__item">
   <a href="#postmaster_address" class="md-nav__link">
     POSTMASTER_ADDRESS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_update_check" class="md-nav__link">
+    ENABLE_UPDATE_CHECK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_check_interval" class="md-nav__link">
+    UPDATE_CHECK_INTERVAL
   </a>
   
 </li>
@@ -2306,6 +2320,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enable_update_check" class="md-nav__link">
+    ENABLE_UPDATE_CHECK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_check_interval" class="md-nav__link">
+    UPDATE_CHECK_INTERVAL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#postscreen_action" class="md-nav__link">
     POSTSCREEN_ACTION
   </a>
@@ -3174,6 +3202,17 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li><strong>empty</strong> =&gt; <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#99;&#111;&#109;">&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#99;&#111;&#109;</a></li>
 <li>=&gt; Specify the postmaster address</li>
 </ul>
+<h5 id="enable_update_check"><a class="toclink" href="#enable_update_check">ENABLE_UPDATE_CHECK</a></h5>
+<p>Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS.</p>
+<ul>
+<li>0 =&gt; Update check disabled</li>
+<li><strong>1</strong> =&gt; Update check enabled</li>
+</ul>
+<h5 id="update_check_interval"><a class="toclink" href="#update_check_interval">UPDATE_CHECK_INTERVAL</a></h5>
+<p>Customize the update check interval. Number + Suffix. Suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.</p>
+<ul>
+<li><strong>1d</strong> =&gt; Check for updates once a day</li>
+</ul>
 <h5 id="postscreen_action"><a class="toclink" href="#postscreen_action">POSTSCREEN_ACTION</a></h5>
 <ul>
 <li><strong>enforce</strong> =&gt; Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.</li>
@@ -3717,10 +3756,10 @@ you to replace both instead of just the envelope sender.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../../assets/javascripts/workers/search.4fa0e4ee.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../../assets/javascripts/workers/search.d351de03.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.1d3bfcf1.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a1609d9a.min.js"></script>
       
     
   </body>
