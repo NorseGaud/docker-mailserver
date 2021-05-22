@@ -1,4 +1,5 @@
 #! /bin/bash
+set -x
 
 # shellcheck disable=SC2094
 
@@ -61,8 +62,8 @@ fi
 HASH="$(doveadm pw -s SHA512-CRYPT -u "${FULL_EMAIL}" -p "${PASSWD}")"
 echo "${FULL_EMAIL}|${HASH}" >> "${DATABASE}"
 
-USER="${USER%@*}"
-DOMAIN="${USER#*@}"
+USER="${FULL_EMAIL%@*}"
+DOMAIN="${FULL_EMAIL#*@}"
 
 # Tests fail if the creation of /var/mail/${DOMAIN}/${USER} is too slow and a delete is issued right after adding; prevent this
 while [[ ! -d "/var/mail/${DOMAIN}/${USER}" ]]

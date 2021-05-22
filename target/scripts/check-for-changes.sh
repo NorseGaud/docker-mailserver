@@ -48,8 +48,7 @@ do
   # Lock configuration while working
   create_lock "${SCRIPT_NAME}"
 
-  # get chksum and check it, no need to lock config yet
-  create_lock ${SCRIPT_NAME}
+  # get chksum and check it
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
   if [ $? -eq 1 ]
