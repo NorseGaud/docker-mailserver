@@ -12,4 +12,5 @@ title: 'Contributing | Tests'
       # bash >= 4.0 for associative arrays
       brew install bash
       ```
+
 4. Execute `make`
