@@ -60,7 +60,7 @@ tests:
 test/%.bats: ALWAYS_RUN
 	@ ./test/bats/bin/bats $@
 
-int:
+lint:
 	$(call docker-execute,"[[ ! -e "$(TOOLS_DIR)/hadolint" ]] && make install_linters; make hadolint shellcheck eclint")
 
 hadolint:
@@ -73,11 +73,11 @@ eclint:
 	@ ./test/linting/lint.sh eclint
 
 install_linters:
-	@ mkdir -p $(TOOLS_DIR)
+	@ mkdir -p $(CDIR)/tools
 	@ curl -S -L \
-		"https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$(KERNEL_NAME)-$(MACHINE_ARCH)" -o $(TOOLS_DIR)/hadolint
+		"https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$(KERNEL_NAME)-$(MACHINE_ARCH)" -o $(CDIR)/tools/hadolint
 	@ curl -S -L \
-		"https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).$(KERNEL_NAME_LOWERCASE).$(MACHINE_ARCH).tar.xz" | tar -JxO shellcheck-v$(SHELLCHECK_VERSION)/shellcheck > $(TOOLS_DIR)/shellcheck
+		"https://github.com/koalaman/shellcheck/releases/download/v$(SHELLCHECK_VERSION)/shellcheck-v$(SHELLCHECK_VERSION).$(KERNEL_NAME_LOWERCASE).$(MACHINE_ARCH).tar.xz" | tar -JxO shellcheck-v$(SHELLCHECK_VERSION)/shellcheck > $(CDIR)/tools/shellcheck
 	@ curl -S -L \
-		"https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$(ECLINT_VERSION)/ec-$(KERNEL_NAME_LOWERCASE)-amd64.tar.gz" | tar -zxO bin/ec-$(KERNEL_NAME_LOWERCASE)-amd64 > $(TOOLS_DIR)/eclint
-	@ chmod u+rx $(TOOLS_DIR)/*
+		"https://github.com/editorconfig-checker/editorconfig-checker/releases/download/$(ECLINT_VERSION)/ec-$(KERNEL_NAME_LOWERCASE)-amd64.tar.gz" | tar -zxO bin/ec-$(KERNEL_NAME_LOWERCASE)-amd64 > $(CDIR)/tools/eclint
+	@ chmod u+rx $(CDIR)/tools/*
