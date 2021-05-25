@@ -4,6 +4,10 @@ ARG VCS_VER
 ARG VCS_REF
 ARG DEBIAN_FRONTEND=noninteractive
 
+ARG BUILD_TEST
+ENV BUILD_ENV=${BUILD_TEST:+test}
+ENV BUILD_ENV=${BUILD_ENV:-prod}
+
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
 ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
 ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
@@ -80,7 +84,7 @@ RUN \
   echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/buster buster main" > /etc/apt/sources.list.d/dovecot.list && \
   apt-get -qq update && \
   apt-get upgrade -y && \
-  apt-get -qq -y purge gpg gpg-agent &>/dev/null && \
+  [[ "${BUILD_ENV}" == "test" ]] && apt-get install -y build-essential git; \
   # cleanup
   apt-get -qq autoremove &>/dev/null && \
   apt-get -qq autoclean && \

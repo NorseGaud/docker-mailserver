@@ -34,20 +34,7 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
-function _get_absolute_script_directory
-{
-  if dirname "$(readlink -f "${0}")" &>/dev/null
-  then
-    DIR="$(dirname "$(readlink -f "${0}")")"
-  elif realpath -e -L "${0}" &>/dev/null
-  then
-    DIR="$(realpath -e -L "${0}")"
-    DIR="${DIR%/setup.sh}"
-  fi
-}
-
-DIR="$(pwd)"
-_get_absolute_script_directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 CRI=
 CONFIG_PATH=
@@ -55,10 +42,7 @@ CONTAINER_NAME=
 DEFAULT_CONFIG_PATH="${DIR}/config"
 IMAGE_NAME=
 INFO=
-<<<<<<< HEAD
 USE_CONTAINER=true
-=======
->>>>>>> issues/1982
 USE_TTY=
 USE_SELINUX=
 VOLUME=
@@ -403,7 +387,7 @@ function _main
           then
             _docker_container /bin/bash
           else
-            _docker_container /bin/bash -c "${@}"
+            _docker_container /bin/bash -c "$@"
           fi
           ;;
         * ) _usage ; exit 1 ;;
@@ -415,4 +399,4 @@ function _main
   esac
 }
 
-_main "${@}"
+_main "$@"
