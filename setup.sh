@@ -34,7 +34,26 @@ the version / tag of docker-mailserver. Please read the
 ly and use ./setup.sh help and read the VERSION section.\n" >&2
 }
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+function _get_absolute_script_directory
+{
+  if [[ "$(uname)" == "Darwin" ]]
+  then
+    readlink() {
+      greadlink "${@:+$@}" # Requires coreutils
+    }
+  fi
+  if dirname "$(readlink -f "${0}")" &>/dev/null
+  then
+    DIR="$(dirname "$(readlink -f "${0}")")"
+  elif realpath -e -L "${0}" &>/dev/null
+  then
+    DIR="$(realpath -e -L "${0}")"
+    DIR="${DIR%/setup.sh}"
+  fi
+}
+
+DIR="$(pwd)"
+_get_absolute_script_directory
 
 CRI=
 CONFIG_PATH=
@@ -150,36 +169,35 @@ ${ORANGE}OPTIONS${RESET}
 
 ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
     ${LBLUE}COMMAND${RESET} email ${RED}:=${RESET}
-        ${0} email add <EMAIL ADDRESS> [<PASSWORD>]
-        ${0} email update <EMAIL ADDRESS> [<PASSWORD>]
-        ${0} email del [ OPTIONS${RED}...${RESET} ] <EMAIL ADDRESS> [ <EMAIL ADDRESS>${RED}...${RESET} ]
-        ${0} email restrict <add${RED}|${RESET}del${RED}|${RESET}list> <send${RED}|${RESET}receive> [<EMAIL ADDRESS>]
-        ${0} email list
+        ${0} email ${CYAN}add${RESET} <EMAIL ADDRESS> [<PASSWORD>]
+        ${0} email ${CYAN}update${RESET} <EMAIL ADDRESS> [<PASSWORD>]
+        ${0} email ${CYAN}del${RESET} [ OPTIONS${RED}...${RESET} ] <EMAIL ADDRESS> [ <EMAIL ADDRESS>${RED}...${RESET} ]
+        ${0} email ${CYAN}restrict${RESET} <add${RED}|${RESET}del${RED}|${RESET}list> <send${RED}|${RESET}receive> [<EMAIL ADDRESS>]
+        ${0} email ${CYAN}list${RESET}
 
     ${LBLUE}COMMAND${RESET} alias ${RED}:=${RESET}
-        ${0} alias add <EMAIL ADDRESS> <RECIPIENT>
-        ${0} alias del <EMAIL ADDRESS> <RECIPIENT>
-        ${0} alias list
+        ${0} alias ${CYAN}add${RESET} <EMAIL ADDRESS> <RECIPIENT>
+        ${0} alias ${CYAN}del${RESET} <EMAIL ADDRESS> <RECIPIENT>
+        ${0} alias ${CYAN}list${RESET}
 
     ${LBLUE}COMMAND${RESET} quota ${RED}:=${RESET}
-        ${0} quota set <EMAIL ADDRESS> [<QUOTA>]
-        ${0} quota del <EMAIL ADDRESS>
+        ${0} quota ${CYAN}set${RESET} <EMAIL ADDRESS> [<QUOTA>]
+        ${0} quota ${CYAN}del${RESET} <EMAIL ADDRESS>
 
     ${LBLUE}COMMAND${RESET} config ${RED}:=${RESET}
-        ${0} config dkim [ ARGUMENTS${RED}...${RESET} ]
-        ${0} config ssl <FQDN> (${CYAN}ATTENTION${RESET}: This is deprecated and will be removed soon.)
+        ${0} config ${CYAN}dkim${RESET} [ ARGUMENTS${RED}...${RESET} ]
 
     ${LBLUE}COMMAND${RESET} relay ${RED}:=${RESET}
-        ${0} relay add-domain <DOMAIN> <HOST> [<PORT>]
-        ${0} relay add-auth <DOMAIN> <USERNAME> [<PASSWORD>]
-        ${0} relay exclude-domain <DOMAIN>
+        ${0} relay ${CYAN}add-domain${RESET} <DOMAIN> <HOST> [<PORT>]
+        ${0} relay ${CYAN}add-auth${RESET} <DOMAIN> <USERNAME> [<PASSWORD>]
+        ${0} relay ${CYAN}exclude-domain${RESET} <DOMAIN>
 
     ${LBLUE}COMMAND${RESET} debug ${RED}:=${RESET}
-        ${0} debug fetchmail
-        ${0} debug fail2ban [unban <IP>]
-        ${0} debug show-mail-logs
-        ${0} debug inspect
-        ${0} debug login <COMMANDS>
+        ${0} debug ${CYAN}fetchmail${RESET}
+        ${0} debug ${CYAN}fail2ban${RESET} [unban <IP>]
+        ${0} debug ${CYAN}show-mail-logs${RESET}
+        ${0} debug ${CYAN}inspect${RESET}
+        ${0} debug ${CYAN}login${RESET} <COMMANDS>
 
 ${ORANGE}EXAMPLES${RESET}
     ${WHITE}./setup.sh email add test@domain.tld${RESET}
@@ -213,14 +231,18 @@ function _docker_execute
   if [[ -n ${CONTAINER_NAME} ]]
   then
     # reuse existing container specified on command line
-    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@}"
-    return
-  fi
-  # start temporary container with specified image if a running container isn't available
-  if ! _docker_image_exists "${IMAGE_NAME}"
-  then
-    echo "Image '${IMAGE_NAME}' not found. Pulling ..."
-    ${CRI} pull "${IMAGE_NAME}"
+    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
+  else
+    # start temporary container with specified image
+    if ! _docker_image_exists "${IMAGE_NAME}"
+    then
+      echo "Image '${IMAGE_NAME}' not found. Pulling ..."
+      ${CRI} pull "${IMAGE_NAME}"
+    fi
+
+    ${CRI} run --rm \
+      -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
+      "${USE_TTY}" "${IMAGE_NAME}" "${@:+$@}"
   fi
 
   ${CRI} run --rm \
@@ -232,7 +254,9 @@ function _docker_container_running
 {
   if ${CRI} container inspect -f '{{.State.Running}}' "${1}" &>/dev/null || false
   then
-    echo "The mailserver container ${1} is not running!"
+    ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
+  else
+    echo "The mailserver is not running!"
     exit 1
   fi
 }
@@ -332,11 +356,11 @@ function _main
 
     email )
       case ${2:-} in
-        add      ) shift 2 ; _docker_execute addmailuser "${@}" ;;
-        update   ) shift 2 ; _docker_execute updatemailuser "${@}" ;;
-        del      ) shift 2 ; _docker_execute delmailuser "${@}" ;;
-        restrict ) shift 2 ; _docker_execute restrict-access "${@}" ;;
-        list     ) _docker_execute listmailuser ;;
+        add      ) shift 2 ; _docker_image addmailuser "${@:+$@}" ;;
+        update   ) shift 2 ; _docker_image updatemailuser "${@:+$@}" ;;
+        del      ) shift 2 ; _docker_container delmailuser "${@:+$@}" ;;
+        restrict ) shift 2 ; _docker_container restrict-access "${@:+$@}" ;;
+        list     ) _docker_container listmailuser ;;
         *        ) _usage ;;
       esac
       ;;
@@ -352,34 +376,33 @@ function _main
 
     quota )
       case ${2:-} in
-        set      ) shift 2 ; _docker_execute setquota "${@}" ;;
-        del      ) shift 2 ; _docker_execute delquota "${@}" ;;
+        set      ) shift 2 ; _docker_image setquota "${@:+$@}" ;;
+        del      ) shift 2 ; _docker_image delquota "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     config )
       case ${2:-} in
-        dkim     ) shift 2 ; _docker_execute open-dkim "${@}" ;;
-        ssl      ) shift 2 ; _docker_execute generate-ssl-certificate "${1}" ;;
+        dkim     ) shift 2 ; _docker_image open-dkim "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     relay )
       case ${2:-} in
-        add-domain     ) shift 2 ; _docker_execute addrelayhost "${@}" ;;
-        add-auth       ) shift 2 ; _docker_execute addsaslpassword "${@}" ;;
-        exclude-domain ) shift 2 ; _docker_execute excluderelaydomain "${@}" ;;
+        add-domain     ) shift 2 ; _docker_image addrelayhost "${@:+$@}" ;;
+        add-auth       ) shift 2 ; _docker_image addsaslpassword "${@:+$@}" ;;
+        exclude-domain ) shift 2 ; _docker_image excluderelaydomain "${@:+$@}" ;;
         *              ) _usage ;;
       esac
       ;;
 
     debug )
       case ${2:-} in
-        fetchmail      ) _docker_execute debug-fetchmail ;;
-        fail2ban       ) shift 2 ; _docker_execute fail2ban "${@}" ;;
-        show-mail-logs ) _docker_execute cat /var/log/mail/mail.log ;;
+        fetchmail      ) _docker_image debug-fetchmail ;;
+        fail2ban       ) shift 2 ; _docker_container fail2ban "${@:+$@}" ;;
+        show-mail-logs ) _docker_container cat /var/log/mail/mail.log ;;
         inspect        ) _inspect ;;
         login          )
           shift 2
@@ -387,7 +410,7 @@ function _main
           then
             _docker_container /bin/bash
           else
-            _docker_container /bin/bash -c "$@"
+            _docker_container /bin/bash -c "${@:+$@}"
           fi
           ;;
         * ) _usage ; exit 1 ;;
@@ -399,4 +422,4 @@ function _main
   esac
 }
 
-_main "$@"
+_main "${@:+$@}"
