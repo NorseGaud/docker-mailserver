@@ -6,7 +6,13 @@
 
 SCRIPT="lint.sh"
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+if [[ "$(uname)" == "Darwin" ]]
+then
+  readlink() {
+    greadlink "${@:+$@}" # Requires coreutils
+  }
+fi
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 REPO_ROOT="$(realpath "${SCRIPT_DIR}"/../../)"
 
 HADOLINT_VERSION=2.4.1
@@ -18,40 +24,40 @@ trap '__log_err "${FUNCNAME[0]:-?}" "${BASH_COMMAND:-?}" ${LINENO:-?} ${?:-?}' E
 
 function __log_err
 {
-  printf "\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
-    "  – script    = ${SCRIPT:-${0}}" \
-    "  – function  = ${1} / ${2}" \
-    "  – line      = ${3}" \
-    "  – exit code = ${4}"
+  printf "\n--- \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n" \
+    "  - script    = ${SCRIPT:-${0}}" \
+    "  - function  = ${1} / ${2}" \
+    "  - line      = ${3}" \
+    "  - exit code = ${4}"
 }
 
 function __log_info
 {
-  printf "\n––– \e[34m%s\e[0m\n%s\n%s\n\n" \
+  printf "\n--- \e[34m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
-    "  – type    = INFO" \
-    "  – version = ${*}"
+    "  - type    = INFO" \
+    "  - version = ${*}"
 }
 
 function __log_failure
 {
-  printf "\n––– \e[91m%s\e[0m\n%s\n%s\n\n" \
+  printf "\n--- \e[91m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT:-${0}}" \
-    "  – type    = FAILURE" \
-    "  – message = ${*:-errors encountered}"
+    "  - type    = FAILURE" \
+    "  - message = ${*:-errors encountered}"
 }
 
 function __log_success
 {
-  printf "\n––– \e[32m%s\e[0m\n%s\n%s\n\n" \
+  printf "\n--- \e[32m%s\e[0m\n%s\n%s\n\n" \
     "${SCRIPT}" \
-    "  – type    = SUCCESS" \
-    "  – message = no errors detected"
+    "  - type    = SUCCESS" \
+    "  - message = no errors detected"
 }
 
 function __in_path
 {
-  command -v "${@}" &>/dev/null && return 0 ; return 1 ;
+  command -v "${@:+$@}" &>/dev/null && return 0 ; return 1 ;
 }
 
 function _eclint
@@ -95,10 +101,12 @@ function _shellcheck
   F_SH="$(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
     -not -path './test/test_helper/*' \
-    -not -path './target/docker-configomat/*' -print0 \
-    | xargs -0
+    -not -path './target/docker-configomat/*'
   )"
-  F_BIN="$(find 'target/bin' -perm +111 -type f -or -type l)"
+  # macOS lacks parity for `-executable` but presently produces the same results: https://stackoverflow.com/a/4458361
+  [[ "$(uname)" == "Darwin" ]] && FIND_EXEC="-perm +111 -type l -or" || FIND_EXEC="-executable"
+  # shellcheck disable=SC2248
+  F_BIN="$(find 'target/bin' ${FIND_EXEC} -type f)"
   F_BATS="$(find 'test' -maxdepth 1 -type f -iname '*.bats')"
 
   # This command is a bit easier to grok as multi-line. There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
@@ -111,13 +119,14 @@ function _shellcheck
     --enable=all
     --exclude=SC2154
     --source-path=SCRIPTDIR
+    "${F_SH} ${F_BIN} ${F_BATS}"
   )
-
-  # shellcheck disable=SC2086
+  
+  # shellcheck disable=SC2068
   if docker run --rm --tty \
       --volume "${REPO_ROOT}:/ci:ro" \
       --workdir "/ci" \
-      "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" ${F_SH} ${F_BIN} ${F_BATS}
+      "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" ${CMD_SHELLCHECK[@]}
   then
     __log_success
   else
@@ -139,4 +148,4 @@ function __main
   esac
 }
 
-__main "${@}" || exit ${?}
+__main "${@:+$@}" || exit ${?}
