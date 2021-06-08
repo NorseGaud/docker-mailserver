@@ -1472,11 +1472,11 @@
 
 <span class="k">function</span> __log_err
 <span class="o">{</span>
-  <span class="nb">printf</span> <span class="s2">&quot;\n––– \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n&quot;</span> <span class="se">\</span>
-    <span class="s2">&quot;  – script    = </span><span class="si">${</span><span class="nv">SCRIPT</span><span class="k">:-</span><span class="si">${</span><span class="nv">0</span><span class="si">}}</span><span class="s2">&quot;</span> <span class="se">\</span>
-    <span class="s2">&quot;  – function  = </span><span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="s2"> / </span><span class="si">${</span><span class="nv">2</span><span class="si">}</span><span class="s2">&quot;</span> <span class="se">\</span>
-    <span class="s2">&quot;  – line      = </span><span class="si">${</span><span class="nv">3</span><span class="si">}</span><span class="s2">&quot;</span> <span class="se">\</span>
-    <span class="s2">&quot;  – exit code = </span><span class="si">${</span><span class="nv">4</span><span class="si">}</span><span class="s2">&quot;</span> <span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+  <span class="nb">printf</span> <span class="s2">&quot;\n--- \e[1m\e[31mUNCHECKED ERROR\e[0m\n%s\n%s\n%s\n%s\n\n&quot;</span> <span class="se">\</span>
+    <span class="s2">&quot;  - script    = </span><span class="si">${</span><span class="nv">SCRIPT</span><span class="k">:-</span><span class="si">${</span><span class="nv">0</span><span class="si">}}</span><span class="s2">&quot;</span> <span class="se">\</span>
+    <span class="s2">&quot;  - function  = </span><span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="s2"> / </span><span class="si">${</span><span class="nv">2</span><span class="si">}</span><span class="s2">&quot;</span> <span class="se">\</span>
+    <span class="s2">&quot;  - line      = </span><span class="si">${</span><span class="nv">3</span><span class="si">}</span><span class="s2">&quot;</span> <span class="se">\</span>
+    <span class="s2">&quot;  - exit code = </span><span class="si">${</span><span class="nv">4</span><span class="si">}</span><span class="s2">&quot;</span> <span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span>
 
   &lt;CODE TO RUN AFTERWARDS&gt;
 <span class="o">}</span>
