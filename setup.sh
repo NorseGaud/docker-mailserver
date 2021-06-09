@@ -228,7 +228,7 @@ function _docker_image_exists
 
 function _docker_execute
 {
-  if [[ -n ${CONTAINER_NAME} ]]
+  if [[ -n "${CONTAINER_NAME}" ]]
   then
     # reuse existing container specified on command line
     ${CRI} exec "${USE_TTY}" "${CONTAINER_NAME}" "${@:+$@}"
@@ -244,10 +244,6 @@ function _docker_execute
       -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
       "${USE_TTY}" "${IMAGE_NAME}" "${@:+$@}"
   fi
-
-  ${CRI} run --rm \
-    -v "${CONFIG_PATH}:/tmp/docker-mailserver${USE_SELINUX}" \
-    "${USE_TTY}" "${IMAGE_NAME}" "${@}"
 }
 
 function _docker_container_running
@@ -356,11 +352,11 @@ function _main
 
     email )
       case ${2:-} in
-        add      ) shift 2 ; _docker_image addmailuser "${@:+$@}" ;;
-        update   ) shift 2 ; _docker_image updatemailuser "${@:+$@}" ;;
-        del      ) shift 2 ; _docker_container delmailuser "${@:+$@}" ;;
-        restrict ) shift 2 ; _docker_container restrict-access "${@:+$@}" ;;
-        list     ) _docker_container listmailuser ;;
+        add      ) shift 2 ; _docker_execute addmailuser "${@:+$@}" ;;
+        update   ) shift 2 ; _docker_execute updatemailuser "${@:+$@}" ;;
+        del      ) shift 2 ; _docker_execute delmailuser "${@:+$@}" ;;
+        restrict ) shift 2 ; _docker_execute restrict-access "${@:+$@}" ;;
+        list     ) _docker_execute listmailuser ;;
         *        ) _usage ;;
       esac
       ;;
@@ -376,41 +372,41 @@ function _main
 
     quota )
       case ${2:-} in
-        set      ) shift 2 ; _docker_image setquota "${@:+$@}" ;;
-        del      ) shift 2 ; _docker_image delquota "${@:+$@}" ;;
+        set      ) shift 2 ; _docker_execute setquota "${@:+$@}" ;;
+        del      ) shift 2 ; _docker_execute delquota "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     config )
       case ${2:-} in
-        dkim     ) shift 2 ; _docker_image open-dkim "${@:+$@}" ;;
+        dkim     ) shift 2 ; _docker_execute open-dkim "${@:+$@}" ;;
         *        ) _usage ;;
       esac
       ;;
 
     relay )
       case ${2:-} in
-        add-domain     ) shift 2 ; _docker_image addrelayhost "${@:+$@}" ;;
-        add-auth       ) shift 2 ; _docker_image addsaslpassword "${@:+$@}" ;;
-        exclude-domain ) shift 2 ; _docker_image excluderelaydomain "${@:+$@}" ;;
+        add-domain     ) shift 2 ; _docker_execute addrelayhost "${@:+$@}" ;;
+        add-auth       ) shift 2 ; _docker_execute addsaslpassword "${@:+$@}" ;;
+        exclude-domain ) shift 2 ; _docker_execute excluderelaydomain "${@:+$@}" ;;
         *              ) _usage ;;
       esac
       ;;
 
     debug )
       case ${2:-} in
-        fetchmail      ) _docker_image debug-fetchmail ;;
-        fail2ban       ) shift 2 ; _docker_container fail2ban "${@:+$@}" ;;
-        show-mail-logs ) _docker_container cat /var/log/mail/mail.log ;;
+        fetchmail      ) _docker_execute debug-fetchmail ;;
+        fail2ban       ) shift 2 ; _docker_execute fail2ban "${@:+$@}" ;;
+        show-mail-logs ) _docker_execute cat /var/log/mail/mail.log ;;
         inspect        ) _inspect ;;
         login          )
           shift 2
           if [[ -z ${1:-} ]]
           then
-            _docker_container /bin/bash
+            _docker_execute /bin/bash
           else
-            _docker_container /bin/bash -c "${@:+$@}"
+            _docker_execute /bin/bash -c "${@:+$@}"
           fi
           ;;
         * ) _usage ; exit 1 ;;
