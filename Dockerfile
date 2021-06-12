@@ -74,6 +74,12 @@ RUN \
     echo "ERROR: Wrong GPG fingerprint!" >&2; exit 1; fi && \
   dpkg -i fail2ban.deb 2>&1 && \
   rm fail2ban.deb fail2ban.deb.asc && \
+  # Install latest 2.3 dovecot
+  curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import && \
+  gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg && \
+  echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/buster buster main" > /etc/apt/sources.list.d/dovecot.list && \
+  apt-get -qq update && \
+  apt-get upgrade -y && \
   # cleanup
   apt-get -qq autoremove && \
   apt-get -qq autoclean && \
@@ -229,6 +235,8 @@ COPY \
   target/postfix/sender_header_filter.pcre \
   target/postfix/sender_login_maps.pcre \
   /etc/postfix/maps/
+# Support for 2.3 dovecot
+COPY target/shared/ffdhe4096.pem /etc/dovecot/dh.pem
 
 RUN \
   : >/etc/aliases && \
