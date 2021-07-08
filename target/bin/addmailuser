@@ -18,7 +18,7 @@ function __usage
     ./setup.sh email add [-g] <EMAIL ADDRESS> [<PASSWORD>]
 
 \e[38;5;214mOPTIONS\e[39m
-    -g  
+    -g
         Also generate user encryption key and password protect it with doveadm mailbox cryptokey generate
 
     \e[94mGeneric Program Information\e[39m
