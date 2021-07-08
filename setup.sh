@@ -179,7 +179,7 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
             ${LBLUE}User Encryption Keys${RESET}
                 -g
                     Generate encryption keys for specific user/email
-                    
+
                 -c
                     Update password for existing user encryption key
 
