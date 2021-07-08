@@ -176,6 +176,12 @@ If you got any problems with SPF and/or forwarding mails, give [SRS](https://git
 
 See the [documentation](https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
 
+#### Mailboxes (_aka IMAP Folders_)
+
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_][docs-examples-imapfolders] for more information.
+
+[docs-examples-imapfolders]: https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders
+
 ## Examples
 
 ### With Relevant Environmental Variables
@@ -197,9 +203,10 @@ services:
       - "587:587"
       - "993:993"
     volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - maillogs:/var/log/mail
+      - ./data/maildata:/var/mail
+      - ./data/mailstate:/var/mail-state
+      - ./data/maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
       - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
@@ -214,11 +221,6 @@ services:
       - NET_ADMIN
       - SYS_PTRACE
     restart: always
-
-volumes:
-  maildata:
-  mailstate:
-  maillogs:
 ```
 
 #### LDAP setup
@@ -238,9 +240,10 @@ services:
       - "587:587"
       - "993:993"
     volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - maillogs:/var/log/mail
+      - ./data/maildata:/var/mail
+      - ./data/mailstate:/var/mail-state
+      - ./data/maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
       - ./config/:/tmp/docker-mailserver/
     environment:
       - ENABLE_SPAMASSASSIN=1
@@ -274,9 +277,4 @@ services:
       - NET_ADMIN
       - SYS_PTRACE
     restart: always
-
-volumes:
-  maildata:
-  mailstate:
-  maillogs:
 ```

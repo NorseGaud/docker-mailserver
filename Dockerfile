@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG FAIL2BAN_DEB_URL=https://github.com/fail2ban/fail2ban/releases/download/0.11.2/fail2ban_0.11.2-1.upstream1_all.deb
 ARG FAIL2BAN_DEB_ASC_URL=${FAIL2BAN_DEB_URL}.asc
 ARG FAIL2BAN_GPG_PUBLIC_KEY_ID=0x683BF1BEBD0A882C
-ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=keys.gnupg.net
+ARG FAIL2BAN_GPG_PUBLIC_KEY_SERVER=hkps://keyserver.ubuntu.com
 ARG FAIL2BAN_GPG_FINGERPRINT="8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C"
 
 LABEL org.opencontainers.image.version=${VCS_VER}
@@ -39,6 +39,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # -----------------------------------------------
 
 RUN \
+  # Backport repo for dovecot-fts-xapian package. This can be removed once Debian 11 is used as base image.
+  echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/buster-backports.list && \
   apt-get -qq update && \
   apt-get -qq install apt-utils 2>/dev/null && \
   apt-get -qq dist-upgrade && \
@@ -47,9 +49,9 @@ RUN \
   # A - D
   altermime amavisd-new apt-transport-https arj binutils bzip2 bsd-mailx \
   ca-certificates cabextract clamav clamav-daemon cpio curl \
-  dovecot-core dovecot-imapd dovecot-ldap dovecot-lmtpd \
-  dovecot-managesieved dovecot-pop3d dovecot-sieve dovecot-solr \
-  dumb-init \
+  dbconfig-no-thanks dovecot-core dovecot-fts-xapian dovecot-imapd \
+  dovecot-ldap dovecot-lmtpd dovecot-managesieved dovecot-pop3d \
+  dovecot-sieve dovecot-solr dumb-init \
   # E - O
   ed fetchmail file gamin gnupg gzip iproute2 iptables \
   locales logwatch lhasa libdate-manip-perl liblz4-tool \
@@ -181,7 +183,8 @@ COPY target/postgrey/postgrey.init /etc/init.d/postgrey
 RUN \
   chmod 755 /etc/init.d/postgrey && \
   mkdir /var/run/postgrey && \
-  chown postgrey:postgrey /var/run/postgrey
+  chown postgrey:postgrey /var/run/postgrey && \
+  curl -Lsfo /etc/postgrey/whitelist_clients https://postgrey.schweikert.ch/pub/postgrey_whitelist_clients
 
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
 RUN \
